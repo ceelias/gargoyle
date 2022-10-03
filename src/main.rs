@@ -1,3 +1,5 @@
+use default_net;
+use local_ip_address::list_afinet_netifas;
 use std::fs;
 
 fn get_ephermeral_port_range() -> (i32, i32) {
@@ -21,13 +23,30 @@ fn get_listening_ports_to_ignore() -> Vec<i32> {
         if line.contains(":") {
             let local_ip_ports: Vec<&str> = line.split_whitespace().collect();
             let ports: Vec<&str> = local_ip_ports[1].split(':').collect();
-            let port = i32::from_str_radix(ports[1], 16).unwrap();
+            let port = i32::from_str_radix(ports[1], 16).unwrap(); // Unwrap gets val from Result type
 
-            ignore_ports.push(port);
+            ignore_ports.push(port); // Could potentially add a check to see if it falls in the eph range
         }
     }
 
     ignore_ports
+}
+
+fn get_local_ips() -> Vec<String> {
+    let mut local_ips: Vec<String> = vec![];
+
+    let network_interfaces = list_afinet_netifas().unwrap();
+
+    for (_, ip) in network_interfaces.iter() {
+        local_ips.push(ip.to_string());
+    }
+
+    local_ips
+}
+
+fn get_default_gateway() -> String {
+    let default_gateway = default_net::get_default_gateway().unwrap();
+    default_gateway.ip_addr.to_string()
 }
 
 fn main() {
@@ -40,4 +59,10 @@ fn main() {
     let ignore_listeining_ports = get_listening_ports_to_ignore();
 
     println!("listening ports to ignore: {:?}", ignore_listeining_ports);
+
+    let local_ips = get_local_ips();
+    println!("local ips: {:?}", local_ips);
+
+    let default_gateway_ip = get_default_gateway();
+    println!("gateway ip: {:?}", default_gateway_ip);
 }
