@@ -14,5 +14,8 @@ fn get_ephermeral_port_range() -> (i32, i32) {
 fn main() {
     println!("Getting ephermeral port range");
     let (ephermeral_low, ephermeral_high) = get_ephermeral_port_range();
-    println!("Range, {:?}-{:?}", ephermeral_low, ephermeral_high);
+    println!(
+        "ephemeral port range: {:?}-{:?}",
+        ephermeral_low, ephermeral_high
+    );
 }
